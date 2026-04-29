@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RandomTalk</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root {
+  --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26;
+  --border: rgba(255,255,255,0.07); --text: #f0eeff;
+  --text-dim: rgba(240,238,255,0.45); --text-muted: rgba(240,238,255,0.25);
+  --male: #4f9ef8; --male-dim: rgba(79,158,248,0.12);
+  --female: #f870b0; --female-dim: rgba(248,112,176,0.12);
+  --accent: #9b7fff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0a0a0f; color: #f0eeff; font-family: Arial, sans-serif; overflow: hidden; }
+.app { height: 100vh; display: flex; flex-direction: column; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; border-bottom: 1px solid var(--border);
+}
+.logo { font-weight: 800; font-size: 20px; color: #f0eeff; }
+.logo span { color: var(--accent); }
+.online-pill {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(155,127,255,0.1); border: 1px solid rgba(155,127,255,0.2);
+  padding: 5px 12px; border-radius: 99px; font-size: 12px; color: var(--accent);
+}
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+.screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+.screen.active { display: flex; }
+.home-eyebrow { font-size: 11px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; }
+.home-title { font-size: 42px; font-weight: 800; text-align: center; line-height: 1.1; margin-bottom: 12px; color: #f0eeff; }
+.home-title em { font-style: normal; color: var(--accent); }
+.home-sub { font-size: 14px; color: var(--text-dim); text-align: center; max-width: 360px; line-height: 1.7; margin-bottom: 32px; }
+.gender-pick-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+.gender-cards { display: flex; gap: 12px; margin-bottom: 8px; }
+.gcard {
+  width: 145px; padding: 20px 14px; border-radius: 16px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: all 0.2s; position: relative;
+}
+.gcard.male:hover,.gcard.male.selected { border-color: var(--male); box-shadow: 0 0 20px rgba(79,158,248,0.3); }
+.gcard.female:hover,.gcard.female.selected { border-color: var(--female); box-shadow: 0 0 20px rgba(248,112,176,0.3); }
+.gcard-icon { font-size: 30px; }
+.gcard-label { font-size: 13px; font-weight: 700; color: var(--text-dim); }
+.gcard.male.selected .gcard-label { color: var(--male); }
+.gcard.female.selected .gcard-label { color: var(--female); }
+.gcard-sub { font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.4; }
+.selected-check { position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; opacity: 0; transition: opacity 0.2s; color: #fff; }
+.gcard.male .selected-check { background: var(--male); }
+.gcard.female .selected-check { background: var(--female); }
+.gcard.selected .selected-check { opacity: 1; }
+.my-gender-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; margin-bottom: 24px; }
+.my-gender-label { font-size: 13px; color: var(--text-dim); }
+.my-gender-btns { display: flex; gap: 6px; }
+.mgbtn {
+  padding: 5px 14px; border-radius: 99px; font-size: 12px;
+  border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.15s;
+}
+.mgbtn.male.active { border-color: var(--male); background: var(--male-dim); color: var(--male); }
+.mgbtn.female.active { border-color: var(--female); background: var(--female-dim); color: var(--female); }
+.start-btn {
+  padding: 14px 44px; border-radius: 12px; border: none;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; background: var(--accent); color: #fff;
+}
+.start-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(155,127,255,0.35); }
+.start-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+#searching { gap: 18px; }
+.search-ring { width: 90px; height: 90px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; }
+.ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; animation: spin 2s linear infinite; }
+.ring1 { border-top-color: var(--accent); animation-duration: 1.4s; }
+.ring2 { inset: 8px; border-right-color: var(--female); animation-duration: 2s; animation-direction: reverse; }
+.ring3 { inset: 16px; border-bottom-color: var(--male); animation-duration: 2.6s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ring-center { width: 44px; height: 44px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; z-index: 1; }
+.search-title { font-size: 20px; font-weight: 700; color: #f0eeff; }
+.search-sub { font-size: 13px; color: var(--text-dim); }
+.cancel-btn {
+  padding: 9px 24px; border-radius: 10px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-size: 13px; cursor: pointer; margin-top: 8px;
+}
+#chat { padding: 0; justify-content: flex-start; }
+.chat-topbar {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface);
+}
+.chat-peer { display: flex; align-items: center; gap: 10px; }
+.peer-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.peer-avatar.male { background: var(--male-dim); border: 1px solid var(--male); }
+.peer-avatar.female { background: var(--female-dim); border: 1px solid var(--female); }
+.peer-name { font-size: 14px; font-weight: 700; color: #f0eeff; }
+.peer-status { font-size: 11px; color: #4ade80; }
+.chat-actions { display: flex; gap: 8px; }
+.chat-action-btn {
+  padding: 5px 12px; border-radius: 8px; font-size: 12px;
+  cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); background: transparent; color: var(--text-dim);
+}
+.chat-action-btn.next { color: var(--accent); border-color: rgba(155,127,255,0.3); }
+.chat-action-btn.leave { color: #f87171; border-color: rgba(248,113,113,0.3); }
+.messages {
+  flex: 1; overflow-y: auto; padding: 16px; display: flex;
+  flex-direction: column; gap: 10px; width: 100%;
+}
+.msg { display: flex; flex-direction: column; max-width: 70%; }
+.msg.me { align-self: flex-end; align-items: flex-end; }
+.msg.them { align-self: flex-start; }
+.msg-bubble { padding: 9px 13px; border-radius: 14px; font-size: 14px; line-height: 1.55; word-break: break-word; }
+.msg.me .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.msg.them.male .msg-bubble { background: var(--male-dim); border: 1px solid rgba(79,158,248,0.2); border-bottom-left-radius: 4px; color: #f0eeff; }
+.msg.them.female .msg-bubble { background: var(--female-dim); border: 1px solid rgba(248,112,176,0.2); border-bottom-left-radius: 4px; color: #f0eeff; }
+.msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; padding: 0 4px; }
+.system-msg { text-align: center; font-size: 12px; color: var(--text-muted); padding: 4px 0; font-style: italic; }
+.chat-inputbar {
+  width: 100%; padding: 12px 14px; border-top: 1px solid var(--border);
+  background: var(--surface); display: flex; gap: 8px; align-items: flex-end;
+}
+.chat-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+  color: #f0eeff; font-size: 14px;
+  padding: 9px 13px; resize: none; outline: none; max-height: 100px; min-height: 40px; line-height: 1.5;
+}
+.chat-input::placeholder { color: var(--text-muted); }
+.send-btn {
+  width: 40px; height: 40px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff; cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.disconnected-bar {
+  background: rgba(248,113,113,0.1); border-top: 1px solid rgba(248,113,113,0.2);
+  text-align: center; padding: 9px; font-size: 13px; color: #f87171; display: none;
+}
+.disconnected-bar.show { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">Random<span>Talk</span></div>
+    <div class="online-pill"><div class="pulse"></div><span id="online-count">0 online</span></div>
+  </header>
+
+  <div class="screen active" id="home">
+    <div class="home-eyebrow">Anonymous · Free · Real</div>
+    <div class="home-title">Talk to <em>anyone,</em><br>anywhere</div>
+    <div class="home-sub">Real users se connect ho — apni marzi se male ya female chunno.</div>
+    <div class="gender-pick-label">Mujhe baat karni hai...</div>
+    <div class="gender-cards">
+      <div class="gcard male" onclick="selectTarget('male')">
+        <div class="selected-check">✓</div>
+        <div class="gcard-icon">♂</div>
+        <div class="gcard-label">Male se</div>
+        <div class="gcard-sub">Random male se connect ho</div>
+      </div>
+      <div class="gcard female" onclick="selectTarget('female')">
+        <div class="selected-check">✓</div>
+        <div class="gcard-icon">♀</div>
+        <div class="gcard-label">Female se</div>
+        <div class="gcard-sub">Random female se connect ho</div>
+      </div>
+    </div>
+    <div class="my-gender-row">
+      <div class="my-gender-label">Main hoon:</div>
+      <div class="my-gender-btns">
+        <button class="mgbtn male" onclick="selectMyGender('male')">Male</button>
+        <button class="mgbtn female" onclick="selectMyGender('female')">Female</button>
+      </div>
+    </div>
+    <button class="start-btn" id="start-btn" onclick="startSearch()" disabled>Dhundho →</button>
+  </div>
+
+  <div class="screen" id="searching">
+    <div class="search-ring">
+      <div class="ring ring1"></div><div class="ring ring2"></div><div class="ring ring3"></div>
+      <div class="ring-center">🔍</div>
+    </div>
+    <div class="search-title">Dhundh raha hoon...</div>
+    <div class="search-sub" id="search-sub">Real user ka wait kar raha hoon</div>
+    <button class="cancel-btn" onclick="cancelSearch()">Roko</button>
+  </div>
+
+  <div class="screen" id="chat">
+    <div class="chat-topbar">
+      <div class="chat-peer">
+        <div class="peer-avatar" id="peer-avatar">👤</div>
+        <div>
+          <div class="peer-name" id="peer-name">Stranger</div>
+          <div class="peer-status">● Online</div>
+        </div>
+      </div>
+      <div class="chat-actions">
+        <button class="chat-action-btn next" onclick="nextStranger()">Next →</button>
+        <button class="chat-action-btn leave" onclick="leaveChat()">Chhodna</button>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="disconnected-bar" id="disconnected-bar">Stranger ne chat chhhod di.</div>
+    <div class="chat-inputbar">
+      <textarea class="chat-input" id="chat-input" placeholder="Message likho..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const socket = io();
+let targetGender = null, myGender = null, peerGender = null;
+const maleNames = ['Arjun','Rohit','Vikram','Karan','Aman','Dev','Raj','Nikhil'];
+const femaleNames = ['Priya','Ananya','Sneha','Riya','Kavya','Naina','Pooja','Isha'];
+
+socket.on('onlineCount', count => {
+  document.getElementById('online-count').textContent = count + ' online';
+});
+socket.on('waiting', () => {
+  document.getElementById('search-sub').textContent = 'Koi mil jaayega jaldi...';
+});
+socket.on('matched', ({ peerGender: pg }) => {
+  peerGender = pg;
+  const names = pg === 'male' ? maleNames : femaleNames;
+  const name = names[Math.floor(Math.random() * names.length)];
+  document.getElementById('peer-avatar').className = 'peer-avatar ' + pg;
+  document.getElementById('peer-avatar').textContent = pg === 'male' ? '♂' : '♀';
+  document.getElementById('peer-name').textContent = name;
+  document.getElementById('disconnected-bar').classList.remove('show');
+  document.getElementById('messages').innerHTML = '';
+  addSystemMsg('🎉 Connect ho gaye! Namaste bolke shuru karo.');
+  showScreen('chat');
+});
+socket.on('message', msg => { addThemMsg(msg); });
+socket.on('peerLeft', () => {
+  addSystemMsg('Stranger ne chat chhhod di.');
+  document.getElementById('disconnected-bar').classList.add('show');
+});
+socket.on('findNext', () => { startSearch(); });
+
+function selectTarget(g) {
+  targetGender = g;
+  document.querySelectorAll('.gcard').forEach(c => c.classList.remove('selected'));
+  document.querySelector('.gcard.' + g).classList.add('selected');
+  checkReady();
+}
+function selectMyGender(g) {
+  myGender = g;
+  document.querySelectorAll('.mgbtn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.mgbtn.' + g).classList.add('active');
+  checkReady();
+}
+function checkReady() {
+  document.getElementById('start-btn').disabled = !(targetGender && myGender);
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function startSearch() {
+  showScreen('searching');
+  socket.emit('findStranger', { myGender, targetGender });
+}
+function cancelSearch() { showScreen('home'); }
+function nextStranger() { socket.emit('next'); showScreen('searching'); }
+function leaveChat() { socket.emit('next'); showScreen('home'); }
+function sendMessage() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  socket.emit('message', text);
+  addMyMsg(text);
+  inp.value = ''; inp.style.height = 'auto';
+}
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+function getTime() {
+  const n = new Date();
+  return n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+}
+function addMyMsg(text) {
+  const m = document.getElementById('messages');
+  m.innerHTML += `<div class="msg me"><div class="msg-bubble">${esc(text)}</div><div class="msg-time">${getTime()}</div></div>`;
+  m.scrollTop = m.scrollHeight;
+}
+function addThemMsg(text) {
+  const m = document.getElementById('messages');
+  m.innerHTML += `<div class="msg them ${peerGender}"><div class="msg-bubble">${esc(text)}</div><div class="msg-time">${getTime()}</div></div>`;
+  m.scrollTop = m.scrollHeight;
+}
+function addSystemMsg(text) {
+  const m = document.getElementById('messages');
+  m.innerHTML += `<div class="system-msg">${text}</div>`;
+  m.scrollTop = m.scrollHeight;
+}
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
