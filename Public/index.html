@@ -122,16 +122,26 @@ header {
 .system-msg { text-align: center; font-size: 12px; color: var(--text-muted); padding: 4px 0; font-style: italic; }
 .chat-inputbar {
   width: 100%; padding: 10px 12px; border-top: 1px solid var(--border);
-  background: var(--surface); display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+  background: var(--surface); display: flex; gap: 8px; align-items: center; flex-shrink: 0;
 }
 .chat-input {
-  flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
-  color: #f0eeff; font-size: 16px;
-  padding: 10px 13px; resize: none; outline: none; max-height: 100px; min-height: 44px; line-height: 1.5;
-  -webkit-appearance: none; appearance: none;
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: #f0eeff;
+  font-size: 16px;
+  padding: 10px 13px;
+  outline: none;
+  height: 44px;
+  line-height: 1.5;
+  -webkit-appearance: none;
+  appearance: none;
   touch-action: manipulation;
   user-select: text;
   -webkit-user-select: text;
+  display: block;
+  width: 100%;
 }
 .chat-input::placeholder { color: var(--text-muted); }
 .send-btn {
@@ -210,15 +220,16 @@ header {
     <div class="messages" id="messages"></div>
     <div class="disconnected-bar" id="disconnected-bar">Stranger ne chat chhhod di.</div>
     <div class="chat-inputbar">
-      <textarea class="chat-input" id="chat-input" 
-        placeholder="Message likho..." 
-        rows="1"
-        onkeydown="handleKey(event)" 
-        oninput="autoResize(this)"
+      <input type="text" 
+        class="chat-input" 
+        id="chat-input" 
+        placeholder="Message likho..."
         autocomplete="off"
         autocorrect="off"
         autocapitalize="sentences"
-        inputmode="text"></textarea>
+        inputmode="text"
+        enterkeyhint="send"
+        onkeydown="handleKey(event)" />
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
   </div>
@@ -307,19 +318,14 @@ function sendMessage() {
   if (!text) return;
   socket.emit('message', text);
   addMyMsg(text);
-  inp.value = ''; 
-  inp.style.height = 'auto';
-  setTimeout(() => inp.focus(), 100);
+  inp.value = '';
+  setTimeout(() => inp.focus(), 50);
 }
-function handleKey(e) { 
-  if (e.key === 'Enter' && !e.shiftKey) { 
-    e.preventDefault(); 
-    sendMessage(); 
-  } 
-}
-function autoResize(el) { 
-  el.style.height = 'auto'; 
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px'; 
+function handleKey(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    sendMessage();
+  }
 }
 function getTime() {
   const n = new Date();
