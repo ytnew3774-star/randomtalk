@@ -3,7 +3,7 @@
 <head>
 <meta name="google-site-verification" content="KP5uQ3RrN5Ok92M-H6IB19rVJak2h21KAzqVCTt8HI4" />
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>RandomTalk</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
@@ -16,38 +16,38 @@
   --accent: #9b7fff;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: #0a0a0f; color: #f0eeff; font-family: Arial, sans-serif; overflow: hidden; }
+html, body { height: 100%; background: #0a0a0f; color: #f0eeff; font-family: Arial, sans-serif; }
 .app { height: 100vh; display: flex; flex-direction: column; }
 header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px; border-bottom: 1px solid var(--border);
+  padding: 12px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
-.logo { font-weight: 800; font-size: 20px; color: #f0eeff; }
+.logo { font-weight: 800; font-size: 18px; color: #f0eeff; }
 .logo span { color: var(--accent); }
 .online-pill {
-  display: flex; align-items: center; gap: 7px;
+  display: flex; align-items: center; gap: 6px;
   background: rgba(155,127,255,0.1); border: 1px solid rgba(155,127,255,0.2);
-  padding: 5px 12px; border-radius: 99px; font-size: 12px; color: var(--accent);
+  padding: 4px 10px; border-radius: 99px; font-size: 11px; color: var(--accent);
 }
-.pulse { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
-.screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+.screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
 .screen.active { display: flex; }
-.home-eyebrow { font-size: 11px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; }
-.home-title { font-size: 42px; font-weight: 800; text-align: center; line-height: 1.1; margin-bottom: 12px; color: #f0eeff; }
+.home-eyebrow { font-size: 11px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.home-title { font-size: 36px; font-weight: 800; text-align: center; line-height: 1.1; margin-bottom: 10px; color: #f0eeff; }
 .home-title em { font-style: normal; color: var(--accent); }
-.home-sub { font-size: 14px; color: var(--text-dim); text-align: center; max-width: 360px; line-height: 1.7; margin-bottom: 32px; }
-.gender-pick-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+.home-sub { font-size: 14px; color: var(--text-dim); text-align: center; max-width: 340px; line-height: 1.7; margin-bottom: 28px; }
+.gender-pick-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
 .gender-cards { display: flex; gap: 12px; margin-bottom: 8px; }
 .gcard {
-  width: 145px; padding: 20px 14px; border-radius: 16px;
+  width: 140px; padding: 18px 12px; border-radius: 16px;
   border: 1.5px solid var(--border); background: var(--surface);
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   cursor: pointer; transition: all 0.2s; position: relative;
 }
 .gcard.male:hover,.gcard.male.selected { border-color: var(--male); box-shadow: 0 0 20px rgba(79,158,248,0.3); }
 .gcard.female:hover,.gcard.female.selected { border-color: var(--female); box-shadow: 0 0 20px rgba(248,112,176,0.3); }
-.gcard-icon { font-size: 30px; }
+.gcard-icon { font-size: 28px; }
 .gcard-label { font-size: 13px; font-weight: 700; color: var(--text-dim); }
 .gcard.male.selected .gcard-label { color: var(--male); }
 .gcard.female.selected .gcard-label { color: var(--female); }
@@ -56,11 +56,11 @@ header {
 .gcard.male .selected-check { background: var(--male); }
 .gcard.female .selected-check { background: var(--female); }
 .gcard.selected .selected-check { opacity: 1; }
-.my-gender-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; margin-bottom: 24px; }
+.my-gender-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
 .my-gender-label { font-size: 13px; color: var(--text-dim); }
 .my-gender-btns { display: flex; gap: 6px; }
 .mgbtn {
-  padding: 5px 14px; border-radius: 99px; font-size: 12px;
+  padding: 6px 16px; border-radius: 99px; font-size: 13px;
   border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.15s;
 }
 .mgbtn.male.active { border-color: var(--male); background: var(--male-dim); color: var(--male); }
@@ -69,9 +69,9 @@ header {
   padding: 14px 44px; border-radius: 12px; border: none;
   font-size: 15px; font-weight: 700;
   cursor: pointer; transition: all 0.2s; background: var(--accent); color: #fff;
+  -webkit-tap-highlight-color: transparent;
 }
-.start-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(155,127,255,0.35); }
-.start-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.start-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 #searching { gap: 18px; }
 .search-ring { width: 90px; height: 90px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; }
 .ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; animation: spin 2s linear infinite; }
@@ -83,32 +83,35 @@ header {
 .search-title { font-size: 20px; font-weight: 700; color: #f0eeff; }
 .search-sub { font-size: 13px; color: var(--text-dim); }
 .cancel-btn {
-  padding: 9px 24px; border-radius: 10px; border: 1px solid var(--border);
-  background: transparent; color: var(--text-dim); font-size: 13px; cursor: pointer; margin-top: 8px;
+  padding: 10px 28px; border-radius: 10px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-size: 14px; cursor: pointer; margin-top: 8px;
+  -webkit-tap-highlight-color: transparent;
 }
-#chat { padding: 0; justify-content: flex-start; }
+#chat { padding: 0; justify-content: flex-start; overflow: hidden; }
 .chat-topbar {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface);
+  padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0;
 }
 .chat-peer { display: flex; align-items: center; gap: 10px; }
-.peer-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.peer-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .peer-avatar.male { background: var(--male-dim); border: 1px solid var(--male); }
 .peer-avatar.female { background: var(--female-dim); border: 1px solid var(--female); }
 .peer-name { font-size: 14px; font-weight: 700; color: #f0eeff; }
 .peer-status { font-size: 11px; color: #4ade80; }
-.chat-actions { display: flex; gap: 8px; }
+.chat-actions { display: flex; gap: 6px; }
 .chat-action-btn {
-  padding: 5px 12px; border-radius: 8px; font-size: 12px;
+  padding: 6px 12px; border-radius: 8px; font-size: 12px;
   cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); background: transparent; color: var(--text-dim);
+  -webkit-tap-highlight-color: transparent;
 }
 .chat-action-btn.next { color: var(--accent); border-color: rgba(155,127,255,0.3); }
 .chat-action-btn.leave { color: #f87171; border-color: rgba(248,113,113,0.3); }
 .messages {
-  flex: 1; overflow-y: auto; padding: 16px; display: flex;
+  flex: 1; overflow-y: auto; padding: 12px; display: flex;
   flex-direction: column; gap: 10px; width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
-.msg { display: flex; flex-direction: column; max-width: 70%; }
+.msg { display: flex; flex-direction: column; max-width: 75%; }
 .msg.me { align-self: flex-end; align-items: flex-end; }
 .msg.them { align-self: flex-start; }
 .msg-bubble { padding: 9px 13px; border-radius: 14px; font-size: 14px; line-height: 1.55; word-break: break-word; }
@@ -118,23 +121,25 @@ header {
 .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; padding: 0 4px; }
 .system-msg { text-align: center; font-size: 12px; color: var(--text-muted); padding: 4px 0; font-style: italic; }
 .chat-inputbar {
-  width: 100%; padding: 12px 14px; border-top: 1px solid var(--border);
-  background: var(--surface); display: flex; gap: 8px; align-items: flex-end;
+  width: 100%; padding: 10px 12px; border-top: 1px solid var(--border);
+  background: var(--surface); display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
 }
 .chat-input {
   flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
-  color: #f0eeff; font-size: 14px;
-  padding: 9px 13px; resize: none; outline: none; max-height: 100px; min-height: 40px; line-height: 1.5;
+  color: #f0eeff; font-size: 16px;
+  padding: 10px 13px; resize: none; outline: none; max-height: 100px; min-height: 44px; line-height: 1.5;
+  -webkit-appearance: none; appearance: none;
 }
 .chat-input::placeholder { color: var(--text-muted); }
 .send-btn {
-  width: 40px; height: 40px; border-radius: 10px; border: none;
-  background: var(--accent); color: #fff; cursor: pointer; font-size: 15px;
+  width: 44px; height: 44px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff; cursor: pointer; font-size: 16px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 .disconnected-bar {
   background: rgba(248,113,113,0.1); border-top: 1px solid rgba(248,113,113,0.2);
-  text-align: center; padding: 9px; font-size: 13px; color: #f87171; display: none;
+  text-align: center; padding: 8px; font-size: 13px; color: #f87171; display: none; flex-shrink: 0;
 }
 .disconnected-bar.show { display: block; }
 </style>
@@ -202,9 +207,14 @@ header {
     <div class="messages" id="messages"></div>
     <div class="disconnected-bar" id="disconnected-bar">Stranger ne chat chhhod di.</div>
     <div class="chat-inputbar">
-      <textarea class="chat-input" id="chat-input" placeholder="Message likho..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"
-        autocomplete="off" autocorrect="off" autocapitalize="off"
+      <textarea class="chat-input" id="chat-input" 
+        placeholder="Message likho..." 
+        rows="1"
+        onkeydown="handleKey(event)" 
+        oninput="autoResize(this)"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="sentences"
         inputmode="text"></textarea>
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
@@ -214,6 +224,7 @@ header {
 <script>
 const socket = io();
 let targetGender = null, myGender = null, peerGender = null;
+let isSearching = false;
 const maleNames = ['Arjun','Rohit','Vikram','Karan','Aman','Dev','Raj','Nikhil'];
 const femaleNames = ['Priya','Ananya','Sneha','Riya','Kavya','Naina','Pooja','Isha'];
 
@@ -224,6 +235,7 @@ socket.on('waiting', () => {
   document.getElementById('search-sub').textContent = 'Koi mil jaayega jaldi...';
 });
 socket.on('matched', ({ peerGender: pg }) => {
+  isSearching = false;
   peerGender = pg;
   const names = pg === 'male' ? maleNames : femaleNames;
   const name = names[Math.floor(Math.random() * names.length)];
@@ -240,7 +252,12 @@ socket.on('peerLeft', () => {
   addSystemMsg('Stranger ne chat chhhod di.');
   document.getElementById('disconnected-bar').classList.add('show');
 });
-socket.on('findNext', () => { startSearch(); });
+socket.on('findNext', () => {
+  if (isSearching) return;
+  isSearching = true;
+  showScreen('searching');
+  socket.emit('findStranger', { myGender, targetGender });
+});
 
 function selectTarget(g) {
   targetGender = g;
@@ -262,22 +279,44 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 function startSearch() {
+  if (isSearching) return;
+  isSearching = true;
   showScreen('searching');
   socket.emit('findStranger', { myGender, targetGender });
 }
-function cancelSearch() { showScreen('home'); }
-function nextStranger() { socket.emit('next'); showScreen('searching'); }
-function leaveChat() { socket.emit('next'); showScreen('home'); }
+function cancelSearch() {
+  isSearching = false;
+  showScreen('home');
+}
+function nextStranger() {
+  isSearching = false;
+  socket.emit('next');
+}
+function leaveChat() {
+  isSearching = false;
+  socket.emit('next');
+  showScreen('home');
+}
 function sendMessage() {
   const inp = document.getElementById('chat-input');
   const text = inp.value.trim();
   if (!text) return;
   socket.emit('message', text);
   addMyMsg(text);
-  inp.value = ''; inp.style.height = 'auto';
+  inp.value = ''; 
+  inp.style.height = 'auto';
+  inp.focus();
 }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+function handleKey(e) { 
+  if (e.key === 'Enter' && !e.shiftKey) { 
+    e.preventDefault(); 
+    sendMessage(); 
+  } 
+}
+function autoResize(el) { 
+  el.style.height = 'auto'; 
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px'; 
+}
 function getTime() {
   const n = new Date();
   return n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
