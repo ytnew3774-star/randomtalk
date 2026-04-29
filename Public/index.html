@@ -203,7 +203,9 @@ header {
     <div class="disconnected-bar" id="disconnected-bar">Stranger ne chat chhhod di.</div>
     <div class="chat-inputbar">
       <textarea class="chat-input" id="chat-input" placeholder="Message likho..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        onkeydown="handleKey(event)" oninput="autoResize(this)"
+        autocomplete="off" autocorrect="off" autocapitalize="off"
+        inputmode="text"></textarea>
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
   </div>
