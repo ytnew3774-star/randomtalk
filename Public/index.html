@@ -129,6 +129,9 @@ header {
   color: #f0eeff; font-size: 16px;
   padding: 10px 13px; resize: none; outline: none; max-height: 100px; min-height: 44px; line-height: 1.5;
   -webkit-appearance: none; appearance: none;
+  touch-action: manipulation;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .chat-input::placeholder { color: var(--text-muted); }
 .send-btn {
@@ -306,7 +309,7 @@ function sendMessage() {
   addMyMsg(text);
   inp.value = ''; 
   inp.style.height = 'auto';
-  inp.focus();
+  setTimeout(() => inp.focus(), 100);
 }
 function handleKey(e) { 
   if (e.key === 'Enter' && !e.shiftKey) { 
