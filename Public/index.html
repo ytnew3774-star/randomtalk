@@ -286,6 +286,7 @@ function startSearch() {
 }
 function cancelSearch() {
   isSearching = false;
+  socket.emit('cancelSearch');
   showScreen('home');
 }
 function nextStranger() {
