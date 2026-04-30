@@ -253,6 +253,7 @@ socket.on('message', msg => { addThemMsg(msg); });
 socket.on('peerLeft', () => {
   addSystemMsg('Stranger ne chat chhhod di.');
   document.getElementById('disconnected-bar').classList.add('show');
+  isSearching = false;
 });
 socket.on('findNext', () => {
   if (isSearching) return;
