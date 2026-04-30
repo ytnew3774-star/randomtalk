@@ -299,13 +299,16 @@ function nextStranger() {
   }
   const mg = myGender;
   const tg = targetGender;
-  isSearching = true;
   socket.emit('next');
-  showScreen('searching');
+  
+  // Pehle home screen dikhao phir search
+  showScreen('home');
+  
   setTimeout(() => {
     isSearching = true;
+    showScreen('searching');
     socket.emit('findStranger', { myGender: mg, targetGender: tg });
-  }, 800);
+  }, 300);
 }function leaveChat() {
   isSearching = false;
   socket.emit('next');
