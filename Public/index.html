@@ -297,14 +297,16 @@ function nextStranger() {
     showScreen('home');
     return;
   }
+  const mg = myGender;
+  const tg = targetGender;
   isSearching = true;
   socket.emit('next');
   showScreen('searching');
   setTimeout(() => {
-    socket.emit('findStranger', { myGender, targetGender });
-  }, 500);
-}
-function leaveChat() {
+    isSearching = true;
+    socket.emit('findStranger', { myGender: mg, targetGender: tg });
+  }, 800);
+}function leaveChat() {
   isSearching = false;
   socket.emit('next');
   showScreen('home');
