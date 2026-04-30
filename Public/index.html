@@ -292,14 +292,15 @@ function cancelSearch() {
   showScreen('home');
 }
 function nextStranger() {
-  isSearching = false;
+  if (!myGender || !targetGender) {
+    showScreen('home');
+    return;
+  }
+  isSearching = true;
   socket.emit('next');
   showScreen('searching');
   setTimeout(() => {
-    if (!isSearching) {
-      isSearching = true;
-      socket.emit('findStranger', { myGender, targetGender });
-    }
+    socket.emit('findStranger', { myGender, targetGender });
   }, 500);
 }
 function leaveChat() {
