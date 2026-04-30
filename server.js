@@ -19,9 +19,7 @@ io.on('connection', (socket) => {
   io.emit('onlineCount', onlineCount);
 
   socket.on('findStranger', ({ myGender, targetGender }) => {
-    // Pehle queue se hatao agar pehle se hai
     removeFromQueue(socket);
-    
     socket.myGender = myGender;
     socket.targetGender = targetGender;
     socket.isSearching = true;
@@ -45,6 +43,7 @@ io.on('connection', (socket) => {
     } else {
       if (myGender === 'male') waitingMale.push(socket);
       else waitingFemale.push(socket);
+      socket.emit('waiting');
     }
   });
 
@@ -64,11 +63,13 @@ io.on('connection', (socket) => {
     if (peerId) {
       const peer = io.sockets.sockets.get(peerId);
       if (peer) {
+        peer.isSearching = false;
         peer.emit('peerLeft');
-        delete pairs[peerId];
       }
+      delete pairs[peerId];
       delete pairs[socket.id];
     }
+    removeFromQueue(socket);
   });
 
   socket.on('disconnect', () => {

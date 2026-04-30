@@ -294,6 +294,13 @@ function cancelSearch() {
 function nextStranger() {
   isSearching = false;
   socket.emit('next');
+  showScreen('searching');
+  setTimeout(() => {
+    if (!isSearching) {
+      isSearching = true;
+      socket.emit('findStranger', { myGender, targetGender });
+    }
+  }, 500);
 }
 function leaveChat() {
   isSearching = false;
